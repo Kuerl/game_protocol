@@ -1,20 +1,16 @@
 import React, { Component } from "react";
 import { TextInput, StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import io from "socket.io-client/dist/socket.io.js";
+import io from "socket.io-client/dist/socket.io";
 
 export default class App extends Component {
   constructor(props) {
     super(props);
-    this.socket = io("http://192.168.137.1:3000");
     this.state = {
-      // randomNumber
       NumberHolder: '#',
-      // stringHandle
       string: {
         stringSend: "This is an object to handle the character!",
         sCount: 0,
       },
-      // actionHandle
       action: {
         actionSend: "Took action!",
         aCount: 0,
@@ -28,26 +24,40 @@ export default class App extends Component {
     this.setState({
       NumberHolder: randomNumber,
     });
-    this.socket.emit("send-random-number", this.state.NumberHolder);
+    this.socket.emit("send-random-number", randomNumber);
   }
   // Handle String
   sendAndCountSendString = () => {
     this.setState({
       string: {
+        stringSend: "This is an object to handle the character!",
         sCount: this.state.string.sCount + 1,
       }
     })
-    this.socket.emit("send-string",this.state.string.stringSend);
+    this.socket.emit("send-string", this.state.string.stringSend);
   }
   // Handle Action
   sendAndCountSendAction = () => {
     this.setState({
       action: {
+        actionSend: "Took action!",
         aCount: this.state.action.aCount + 1,
       }
     })
-    this.socket.emit("send-action",this.state.action.actionSend);
+    this.socket.emit("send-action", this.state.action.actionSend);
   }
+
+  componentDidMount() {
+      this.socket = io("http://192.168.137.1:3000", {transports: ['pooling' ,'websocket']});
+    this.socket.on("reconnect_attempt", () => {
+      this.socket.io.opts.transports = ['pooling', 'websocket'];
+      console.log("Reconnection!");
+    })
+
+    this.socket.on("connect", () => {
+      console.log("Kuerl!");
+    })
+   };
 
   render() {
 
