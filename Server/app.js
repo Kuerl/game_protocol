@@ -16,25 +16,21 @@ app.get('/', (req, res) => {
 });
 
 io.on("connection", (socket) => {
-  // test
-    socket.on("Kuerl", function(data){
-      socket.emit("Kuerl", data);
-      console.log("Re! "+data);
-    })
-
-
   console.log("A device connected to Express server. Id: "+socket.id);
   // random number re
   socket.on("send-random-number", function(data){
-    console.log("Re a random number: "+data);
+    console.log("Re a random number: ", data);
+    socket.emit("rNum-sv-to-client", data);
   })
   // string re
   socket.on("send-string", function(data){
     console.log("Re a string: "+data);
+    socket.emit("string-sv-to-client", data);
   })
   // action re
   socket.on("send-action", function(data){
     console.log("Re a string: "+data);
+    socket.emit("action-sv-to-client", data);
   })
 });
 

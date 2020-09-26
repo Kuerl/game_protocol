@@ -8,19 +8,23 @@ export default class App extends Component {
     this.state = {
       NumberHolder: '#',
       string: {
-        stringSend: "This is an object to handle the character!",
+        stringSend: "This is handle object!",
         sCount: 0,
       },
       action: {
         actionSend: "Took action!",
         aCount: 0,
       },
+      // re and display
+      reNum: "The random number display here!",
+      reString: "The Object here!",
+      reAction: "Action here!",
     }
   }
 
   // Handle Random Number
   createRandomNumber = () => {
-    let randomNumber = Math.floor(Math.random()*6) + 1;
+    let randomNumber = Math.floor(Math.random() * 6) + 1;
     this.setState({
       NumberHolder: randomNumber,
     });
@@ -48,7 +52,7 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-      this.socket = io("http://192.168.137.1:3000", {transports: ['pooling' ,'websocket']});
+    this.socket = io("http://192.168.137.1:3000", { transports: ['pooling', 'websocket'] });
     this.socket.on("reconnect_attempt", () => {
       this.socket.io.opts.transports = ['pooling', 'websocket'];
       console.log("Reconnection!");
@@ -57,7 +61,24 @@ export default class App extends Component {
     this.socket.on("connect", () => {
       console.log("Kuerl!");
     })
-   };
+
+    // Re and display
+    this.socket.on("rNum-sv-to-client", (data) => {
+      this.setState({
+        reNum: data,
+      })
+    })
+    this.socket.on("string-sv-to-client", (data) => {
+      this.setState({
+        reString: data,
+      })
+    })
+    this.socket.on("action-sv-to-client", (data) => {
+      this.setState({
+        reAction: data,
+      })
+    })
+  };
 
   render() {
 
@@ -67,7 +88,7 @@ export default class App extends Component {
           <Text style={styles.content}>Testing Client!</Text>
           <View style={styles.btnArea}>
             <View style={styles.rArea}>
-              <Text style={styles.rTextArea}>{this.state.NumberHolder} </Text>
+              <Text style={styles.rTextArea}>Send a random number: {this.state.NumberHolder} </Text>
               <TouchableOpacity style={styles.handleBtn} onPress={this.createRandomNumber}>
                 <Text style={styles.btnContent}>Send Random Number!</Text>
               </TouchableOpacity>
@@ -77,11 +98,16 @@ export default class App extends Component {
               <TouchableOpacity style={styles.handleBtn} onPress={this.sendAndCountSendString}>
                 <Text style={styles.btnContent}>Send "String"! </Text>
               </TouchableOpacity>
-              </View>
+            </View>
             <View style={styles.sArea}>
               <Text style={styles.sTextArea}>Action Here: The ({this.state.action.aCount}) time(s).</Text>
               <TouchableOpacity style={styles.handleBtn} onPress={this.sendAndCountSendAction}><Text style={styles.btnContent}>Send Action!</Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
+            <View style={styles.recArea}>
+              <Text style={styles.tRec}>{this.state.reNum}</Text>
+              <Text style={styles.tRec}>{this.state.reString}</Text>
+              <Text style={styles.tRec}>{this.state.reAction}</Text>
             </View>
           </View>
         </View>
@@ -100,7 +126,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     backgroundColor: '#555555',
-    height: 500,
+    height: 650,
     width: 350,
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -112,46 +138,67 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-        btnArea: {
-          flex: 1,
-          alignItems: 'center',
-          margin: 10,
-          justifyContent: 'space-around'
-        },
-              handleBtn: {
-                marginHorizontal: 10,
-                marginVertical: 10,
-                backgroundColor: '#00BFFF',
-                paddingHorizontal: 10,
-                paddingVertical: 10,
-                borderRadius: 10,
-                width: 250,
-                marginLeft: 0,
-              },
-                    btnContent: {
-                      textAlign: 'center',
-                      color: 'white',
-                      fontStyle: 'italic',
-                      fontSize: 20,
-                    },
-              rArea: {
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: "center",
-              },
-                    rTextArea: {
-                      fontSize: 30,
-                      marginLeft: 20,
-                      color: 'white',
-                    },
-              sArea: {
-                flex: 1,
-                flexDirection: 'column',
-                alignItems: 'center',
-              },
-                    sTextArea: {
-                      fontSize: 15,
-                      marginLeft: 20,
-                      color: 'white',
-                    },
+  btnArea: {
+    flex: 1,
+    alignItems: 'center',
+    margin: 10,
+    justifyContent: 'space-around',
+  },
+  handleBtn: {
+    marginHorizontal: 10,
+    marginVertical: 10,
+    backgroundColor: '#00BFFF',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: 10,
+    width: 250,
+    paddingVertical: 15,
+    marginLeft: 0,
+  },
+  btnContent: {
+    textAlign: 'center',
+    color: 'white',
+    fontStyle: 'italic',
+    fontSize: 20,
+  },
+  rArea: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: "center",
+  },
+  rTextArea: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+    color: 'white',
+    fontSize: 15,
+  },
+  sArea: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  sTextArea: {
+    fontSize: 15,
+    marginLeft: 20,
+    color: 'white',
+  },
+  recArea: {
+    flex: 2,
+    backgroundColor: '#878f99',
+    width: '100%',
+    alignItems: 'flex-start',
+    margin: 10,
+    marginTop: 30,
+    justifyContent: 'space-around',
+    borderRadius: 10,
+    padding: 10,
+  },
+  tRec: {
+    backgroundColor: '#1d3557',
+    color: 'white',
+    padding: 15,
+    borderRadius: 5,
+    width: '100%',
+  },
 });
