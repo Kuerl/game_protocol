@@ -25,6 +25,7 @@ io.on("connection", (socket) => {
     console.log("Re a random number: ", data);
     gameSocket && gameSocket.emit("rNum-sv-to-client", data);
   })
+  1
   // string re
   socket.on("send-string", function (data) {
     console.log("Re a string: " + data);
