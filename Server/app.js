@@ -12,25 +12,33 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //connect html file
 app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'public/clientTest.html'));
+  res.sendFile(path.join(__dirname, 'public/clientTest.html'));
 });
 
+var gameSocket = null;
+
 io.on("connection", (socket) => {
-  console.log("A device connected to Express server. Id: "+socket.id);
+  // console.log(socket);
+  console.log("A device connected to Express server. Id: " + socket.id);
   // random number re
-  socket.on("send-random-number", function(data){
+  socket.on("send-random-number", function (data) {
     console.log("Re a random number: ", data);
-    socket.emit("rNum-sv-to-client", data);
+    gameSocket && gameSocket.emit("rNum-sv-to-client", data);
   })
   // string re
-  socket.on("send-string", function(data){
-    console.log("Re a string: "+data);
-    socket.emit("string-sv-to-client", data);
+  socket.on("send-string", function (data) {
+    console.log("Re a string: " + data);
+
+    if (data == "I am the GAME")
+      gameSocket = socket;
+
+    gameSocket && gameSocket.emit("string-sv-to-client", data);
+
   })
   // action re
-  socket.on("send-action", function(data){
-    console.log("Re a string: "+data);
-    socket.emit("action-sv-to-client", data);
+  socket.on("send-action", function (data) {
+    console.log("Re a string: " + data);
+    gameSocket && gameSocket.emit("action-sv-to-client", data);
   })
 });
 
